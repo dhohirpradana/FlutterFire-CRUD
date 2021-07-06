@@ -1,0 +1,77 @@
+{
+  "project_info": {
+    "project_number": "323249281985",
+    "firebase_url": "https://fir-1-b9b6a.firebaseio.com",
+    "project_id": "fir-1-b9b6a",
+    "storage_bucket": "fir-1-b9b6a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:323249281985:android:0010708e5c809027e2ad40",
+        "android_client_info": {
+          "package_name": "com.example.firebase1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "323249281985-mvfmcp7r1b7qk8540f91of534v8qtn34.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlsutl9Y9Rs0ppnMfy4OFnseE8M13qMQs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "323249281985-mvfmcp7r1b7qk8540f91of534v8qtn34.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:323249281985:android:ad9fcf20f34eeee9e2ad40",
+        "android_client_info": {
+          "package_name": "com.example.mantoo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "323249281985-uijomic9e98pvovb8fpk0jl7la2cr56d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mantoo",
+            "certificate_hash": "be0eb4e630afe7267836ea09f2c7244fbf20e602"
+          }
+        },
+        {
+          "client_id": "323249281985-mvfmcp7r1b7qk8540f91of534v8qtn34.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlsutl9Y9Rs0ppnMfy4OFnseE8M13qMQs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "323249281985-mvfmcp7r1b7qk8540f91of534v8qtn34.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
