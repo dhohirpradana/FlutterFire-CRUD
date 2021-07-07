@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mantoo/res/custom_color.dart';
 import 'package:mantoo/widget/add_item_form.dart';
-import 'package:mantoo/widget/app_bar_title.dart';
+import 'package:mantoo/widget/app_bar_title_p2.dart';
 
 class AddItem extends StatelessWidget {
   final User uid;
@@ -25,7 +25,7 @@ class AddItem extends StatelessWidget {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: CustomColors.firebaseNavy,
-          title: AppBarTitle(),
+          title: AppBarTitleP2(),
         ),
         body: SafeArea(
           child: Padding(

@@ -42,7 +42,10 @@ class _AppBarTitleState extends State<AppBarTitle> {
           ],
         ),
         IconButton(
-          icon: Icon(Icons.person, color: Colors.white),
+          icon: Icon(
+            Icons.person,
+            color: CustomColors.firebaseOrange,
+          ),
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(

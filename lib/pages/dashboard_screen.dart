@@ -1,11 +1,19 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:mantoo/helper/local_notification.dart';
 import 'package:mantoo/pages/add_item.dart';
 import 'package:mantoo/res/custom_color.dart';
 import 'package:mantoo/widget/app_bar_title.dart';
+import 'package:mantoo/widget/app_bar_title_p2.dart';
 import 'package:mantoo/widget/item_list.dart';
-// import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;
+
+import 'firebase_messaging.dart';
 
 class DashboardScreen extends StatefulWidget {
   final User uid;
@@ -16,85 +24,87 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  // AndroidNotificationChannel? channel;
-  // String? _token;
+  late String? _token;
   // // Crude counter to make messages unique
-  // int _messageCount = 0;
+  int _messageCount = 0;
 
-  // /// The API endpoint here accepts a raw FCM payload for demonstration purposes.
-  // String constructFCMPayload(String token) {
-  //   _messageCount++;
-  //   return jsonEncode({
-  //     'token': token,
-  //     'data': {
-  //       'via': 'FlutterFire Cloud Messaging!!!',
-  //       'count': _messageCount.toString(),
-  //     },
-  //     'notification': {
-  //       'title': 'Hello FlutterFire!',
-  //       'body': 'This notification (#$_messageCount) was created via FCM!',
-  //     },
-  //   });
-  // }
+  /// The API endpoint here accepts a raw FCM payload for demonstration purposes.
+  String constructFCMPayload(String token) {
+    _messageCount++;
+    return jsonEncode({
+      'token': token,
+      'data': {
+        'via': 'FlutterFire Cloud Messaging!!!',
+        'count': _messageCount.toString(),
+      },
+      'notification': {
+        'title': 'Hello FlutterFire!',
+        'body': 'This notification (#$_messageCount) was created via FCM!',
+      },
+    });
+  }
+
+  getToken() async {
+    _token = await FirebaseMessaging.instance.getToken();
+  }
 
   // @override
-  // void initState() async {
-  //   super.initState();
-  //   _token = await FirebaseMessaging.instance.getToken();
-  //   print(_token);
-  //   FirebaseMessaging.instance
-  //       .getInitialMessage()
-  //       .then((RemoteMessage? message) {
-  //     if (message != null) {
-  //       Navigator.pushNamed(context, '/message',
-  //           arguments: RemoteMessage(data: message.data));
-  //     }
-  //   });
-  //   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-  //     RemoteNotification? notification = message.notification!;
-  //     AndroidNotification? android = message.notification?.android;
-  //     if (notification != null && android != null) {
-  //       flutterLocalNotificationsPlugin.show(
-  //           notification.hashCode,
-  //           notification.title,
-  //           notification.body,
-  //           NotificationDetails(
-  //             android: AndroidNotificationDetails(
-  //               channel!.id,
-  //               channel!.name,
-  //               channel!.description,
-  //               //      one that already exists in example app.
-  //               icon: 'launch_background',
-  //             ),
-  //           ));
-  //     }
-  //   });
-  //   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-  //     print('A new onMessageOpenedApp event was published!');
-  //     Navigator.pushNamed(context, '/message',
-  //         arguments: RemoteMessage(data: message.data));
-  //   });
-  // }
+  void initState() {
+    getToken();
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
+      if (message != null) {
+        Navigator.pushNamed(context, '/message',
+            arguments: RemoteMessage(data: message.data));
+      }
+    });
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel!.id,
+                channel!.name,
+                channel!.description,
+                //      one that already exists in example app.
+                icon: 'launch_background',
+              ),
+            ));
+      }
+    });
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('A new onMessageOpenedApp event was published!');
+      Navigator.pushNamed(context, '/message',
+          arguments: RemoteMessage(data: message.data));
+    });
+    super.initState();
+  }
 
-  // Future<void> sendPushMessage() async {
-  //   if (_token == null) {
-  //     print('Unable to send FCM message, no token exists.');
-  //     return;
-  //   }
+  Future<void> sendPushMessage() async {
+    if (_token == null) {
+      print('Unable to send FCM message, no token exists.');
+      return;
+    }
 
-  //   try {
-  //     await http.post(
-  //       Uri.parse('https://api.rnfirebase.io/messaging/send'),
-  //       headers: <String, String>{
-  //         'Content-Type': 'application/json; charset=UTF-8',
-  //       },
-  //       body: constructFCMPayload(_token!),
-  //     );
-  //     print('FCM request for device sent!');
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
+    try {
+      await http.post(
+        Uri.parse('https://api.rnfirebase.io/messaging/send'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: constructFCMPayload(_token!),
+      );
+      print('FCM request for device sent!');
+    } catch (e) {
+      print(e);
+    }
+  }
 
   // Future<void> onActionSelected(String value) async {
   //   switch (value) {
@@ -134,15 +144,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
   //   }
   // }
 
+  //AppBar
+  Icon _searchIcon = new Icon(Icons.search);
+  Widget _appBarTitle = new Text('Search Example');
+  final TextEditingController _filter = new TextEditingController();
+
+  void _searchPressed() {
+    setState(() {
+      if (this._searchIcon.icon == Icons.search) {
+        this._searchIcon = new Icon(Icons.close);
+        this._appBarTitle = new TextField(
+          controller: _filter,
+          decoration: new InputDecoration(
+              prefixIcon: new Icon(Icons.search), hintText: 'Search...'),
+        );
+      } else {
+        this._searchIcon = new Icon(Icons.search);
+        this._appBarTitle = new Text('Search Example');
+        // filteredNames = names;
+        _filter.clear();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CustomColors.firebaseNavy,
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: CustomColors.firebaseNavy,
-        title: AppBarTitle(),
-      ),
+          elevation: 0,
+          backgroundColor: CustomColors.firebaseNavy,
+          title: AppBarTitle()),
       // floatingActionButton: Builder(
       //   builder: (context) => FloatingActionButton(
       //     onPressed: sendPushMessage,

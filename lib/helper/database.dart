@@ -41,10 +41,11 @@ class Database {
   }
 
   static Stream<QuerySnapshot> readItems({required User uid}) {
-    CollectionReference notesItemCollection =
-        _mainCollection.doc(uid.uid).collection('barangs');
-
-    return notesItemCollection.snapshots();
+    Query itemCollection = _mainCollection
+        .doc(uid.uid)
+        .collection('barangs')
+        .orderBy('title', descending: false);
+    return itemCollection.snapshots();
   }
 
   static Future<void> updateItem({

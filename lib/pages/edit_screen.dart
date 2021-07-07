@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mantoo/helper/database.dart';
 import 'package:mantoo/res/custom_color.dart';
-import 'package:mantoo/widget/app_bar_title.dart';
+import 'package:mantoo/widget/app_bar_title_p2.dart';
 import 'package:mantoo/widget/edit_item_form.dart';
 
 class EditScreen extends StatefulWidget {
@@ -46,7 +46,7 @@ class _EditScreenState extends State<EditScreen> {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: CustomColors.firebaseNavy,
-          title: AppBarTitle(),
+          title: AppBarTitleP2(),
           actions: [
             _isDeleting
                 ? Padding(
