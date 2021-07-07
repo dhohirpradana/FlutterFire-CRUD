@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mantoo/helper/database.dart';
 import 'package:mantoo/helper/fire_auth.dart';
 import 'package:mantoo/pages/login_screen.dart';
 import 'package:mantoo/res/custom_color.dart';
@@ -16,6 +21,21 @@ class _ProfilePageState extends State<ProfilePage> {
   // bool _isSendingVerification = false;
   // bool _isSigningOut = false;
   late User _currentUser;
+  late File? _imageFile;
+  final picker = ImagePicker();
+  Future _pickImage() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+        Database.uploadImageToFirebase(context, _imageFile!, widget.user.uid);
+      });
+    } else {
+      setState(() {
+        _imageFile = null;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -26,7 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final _nama = _currentUser.displayName!.toUpperCase();
-    final _email = _currentUser.displayName!;
+    final _email = _currentUser.email!;
     return Scaffold(
       backgroundColor: CustomColors.firebaseNavy,
       appBar: AppBar(
@@ -41,21 +61,67 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'APLIKASI MANAJEMEN TOKO ONLINE',
-                style: TextStyle(color: Colors.white, fontSize: 20),
+                'SISTEM',
+                style: TextStyle(
+                    color: Colors.white, fontSize: 20, letterSpacing: 4),
+              ),
+              Text(
+                'MANAJEMEN TOKO ONLINE',
+                style: TextStyle(
+                    color: Colors.white, fontSize: 20, letterSpacing: 4),
               ),
               SizedBox(
-                height: 40,
+                height: 20,
+              ),
+              GestureDetector(
+                onDoubleTap: () {
+                  _pickImage();
+                },
+                child: StreamBuilder<QuerySnapshot>(
+                    stream: Database.readProfileImage(uid: widget.user),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        if (snapshot.data!.docs.length == 0) {
+                          return CircleAvatar(
+                            radius: MediaQuery.of(context).size.width / 8,
+                            backgroundImage:
+                                NetworkImage('https://via.placeholder.com/150'),
+                            backgroundColor: Colors.transparent,
+                          );
+                        } else if (snapshot.data!.docs.length != 0) {
+                          return CircleAvatar(
+                            radius: MediaQuery.of(context).size.width / 8,
+                            backgroundImage:
+                                NetworkImage(snapshot.data!.docs[0]['image']),
+                            backgroundColor: Colors.transparent,
+                          );
+                        } else {
+                          return Text('Error');
+                        }
+                      } else {
+                        return Text(
+                          'Loading...',
+                          style: TextStyle(color: Colors.white),
+                        );
+                      }
+                    }),
+              ),
+              Text(
+                'Ketuk 2x gambar untuk mengubah foto profil',
+                style: TextStyle(color: Colors.blueGrey),
+              ),
+              SizedBox(
+                height: 20,
               ),
               Text(
                 'NAMA: ' + _nama,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white, letterSpacing: 4),
               ),
               SizedBox(height: 16.0),
               Text(
-                'EMAIL: ' + _email,
+                'Email: ' + _email,
                 // style: Theme.of(context).textTheme.bodyText1,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white, letterSpacing: 2),
               ),
               SizedBox(height: 16.0),
               _currentUser.emailVerified
@@ -73,47 +139,53 @@ class _ProfilePageState extends State<ProfilePage> {
                           .bodyText1!
                           .copyWith(color: Colors.red),
                     ),
-              IconButton(
-                icon: Icon(
-                  Icons.refresh,
-                  color: Colors.white,
-                ),
-                onPressed: () async {
-                  User? user = await FireAuth.refreshUser(_currentUser);
-                  if (user != null) {
-                    setState(() {
-                      _currentUser = user;
-                    });
-                  }
-                },
-              ),
-              // Add widgets for verifying email
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all(Colors.green[700])),
+              !_currentUser.emailVerified
+                  ? IconButton(
+                      icon: Icon(
+                        Icons.refresh,
+                        color: Colors.white,
+                      ),
                       onPressed: () async {
-                        if (!_currentUser.emailVerified) {
-                          await _currentUser.sendEmailVerification();
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(
-                                  'Buka kotak masuk email anda untuk memverifikasi akun.')));
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text('Akun anda telah terverifikasi.')));
+                        User? user = await FireAuth.refreshUser(_currentUser);
+                        if (user != null) {
+                          setState(() {
+                            _currentUser = user;
+                          });
                         }
                       },
-                      child: Text(
-                        'Verifikasi Email',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                    )
+                  : SizedBox(),
+              // Add widgets for verifying email
+              !_currentUser.emailVerified
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    Colors.green[700])),
+                            onPressed: () async {
+                              if (!_currentUser.emailVerified) {
+                                await _currentUser.sendEmailVerification();
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    content: Text(
+                                        'Buka kotak masuk email anda untuk memverifikasi akun.')));
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Akun anda telah terverifikasi.')));
+                              }
+                            },
+                            child: Text(
+                              'Verifikasi Email',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : SizedBox(),
               Row(
                 children: [
                   Expanded(

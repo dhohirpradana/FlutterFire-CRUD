@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mantoo/helper/connectivity.dart';
 
@@ -40,11 +43,40 @@ class Database {
     }
   }
 
+  static Future uploadImageToFirebase(
+      BuildContext context, File _imageFile, String uid) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    // String fileName = _imageFile.path;
+    final firebaseStorageRef =
+        FirebaseStorage.instance.ref().child('uploads/$uid-profile.jpg');
+    await firebaseStorageRef.putFile(_imageFile);
+    var url = await firebaseStorageRef.getDownloadURL();
+    print(url);
+    DocumentReference documentReferencer =
+        _mainCollection.doc(uid).collection('profile').doc();
+    await documentReferencer.set({'image': url, 'time': now}).whenComplete(() {
+      print("Gambar berhasil diupload");
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gambar berhasil diupload.')));
+    }).catchError((e) {
+      print(e);
+    });
+  }
+
   static Stream<QuerySnapshot> readItems({required User uid}) {
     Query itemCollection = _mainCollection
         .doc(uid.uid)
         .collection('barangs')
         .orderBy('title', descending: false);
+    return itemCollection.snapshots();
+  }
+
+  static Stream<QuerySnapshot> readProfileImage({required User uid}) {
+    Query itemCollection = _mainCollection
+        .doc(uid.uid)
+        .collection('profile')
+        .orderBy('time', descending: true)
+        .limit(1);
     return itemCollection.snapshots();
   }
 
