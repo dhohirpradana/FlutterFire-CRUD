@@ -1,46 +1,65 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mantoo/helper/connectivity.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 final FirebaseAuth auth = FirebaseAuth.instance;
 final User user = auth.currentUser!;
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-final CollectionReference _mainCollection = _firestore.collection('mantoo');
+final CollectionReference _mainCollection = _firestore.collection('onesignal');
 
-class Database {
+DateTime now = DateTime.now();
+sendNotification({required nama, required message, required receiver}) async {
+  // var status = await OneSignal.shared.getDeviceState();
+  // var playerId = status!.userId;
+  final name = nama.toString().toUpperCase();
+
+  await OneSignal.shared.postNotification(OSCreateNotification(
+    playerIds: [receiver!],
+    bigPicture: 'https://picsum.photos/200',
+    content: message,
+    heading: "FireMessage dari $name",
+    // buttons: [
+    //   OSActionButton(text: "OK", id: "ok"),
+    //   // OSActionButton(text: "test2", id: "id2")
+    // ]
+  ));
+}
+
+class MessageDatabase {
   static String userUid = user.uid;
-  static Future<void> addItem({
+  static Stream<QuerySnapshot> readUsers({required User uid}) {
+    Query itemCollection = _mainCollection;
+    return itemCollection.snapshots();
+  }
+
+  static Future<void> addChat({
     required User uid,
-    required String title,
-    required int hargaBeli,
-    required int hargaJual,
-    required String description,
+    required String receiver,
+    required String receiverId,
+    required String text,
   }) async {
     DocumentReference documentReferencer =
-        _mainCollection.doc(uid.uid).collection('barangs').doc();
+        _firestore.collection('chatting').doc();
+    int time = DateTime.now().millisecondsSinceEpoch;
 
     Map<String, dynamic> data = <String, dynamic>{
-      "title": title,
-      "harga_beli": hargaBeli,
-      "harga_jual": hargaJual,
-      "description": description,
+      "sender": uid.uid,
+      "receiver": receiverId,
+      "text": text,
+      "time": time,
+      "read": false,
     };
-    // if (user.emailVerified) {
     await documentReferencer.set(data).whenComplete(() {
-      print("Barang berhasil ditambah");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Barang berhasil ditambah.')));
+      print("Chat berhasil dikirim");
+      sendNotification(
+          nama: uid.displayName, receiver: receiver, message: text);
     }).catchError((e) {
       print(e);
     });
-    // } else if (!user.emailVerified) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(content: Text('Dibutuhkan verifikasi email.')));
-    // }
   }
 
   static Future uploadImageToFirebase(

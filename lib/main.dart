@@ -1,9 +1,8 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mantoo/pages/login_screen.dart';
-import 'package:mantoo/pages/message.dart';
 import 'package:mantoo/pages/registration.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 /// Define a top-level named handler which background/terminated messages will
 /// call.
@@ -21,9 +20,13 @@ import 'package:mantoo/pages/registration.dart';
 
 /// Initialize the [FlutterLocalNotificationsPlugin] package.
 // FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+void main() {
+// The promptForPushNotificationsWithUserResponse function will show the iOS push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission
+  // OneSignal.shared.promptUserForPushNotificationPermission().then((accepted) {
+  //   print("Accepted permission: $accepted");
+  // });
+
 // Set the background messaging handler early on, as a named top-level function
   // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -57,8 +60,55 @@ Future<void> main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   // This widget is the root of your application.
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  oneSignal() async {
+    //Remove this method to stop OneSignal Debugging
+    OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+    OneSignal.shared.setAppId("7f00e3ad-e23e-4f52-a95a-1f1aeca39885");
+    OneSignal.shared.setNotificationWillShowInForegroundHandler(
+        (OSNotificationReceivedEvent notification) {
+      // Will be called whenever a notification is received in foreground
+      // Display Notification, pass null param for not displaying the notification
+      // final data = notification.notification.body;
+      // print(data);
+      notification.complete(notification.notification);
+    });
+
+    OneSignal.shared
+        .setNotificationOpenedHandler((OSNotificationOpenedResult result) {
+      // Will be called whenever a notification is opened/button pressed.
+    });
+
+    OneSignal.shared.setPermissionObserver((OSPermissionStateChanges changes) {
+      // Will be called whenever the permission changes
+      // (ie. user taps Allow on the permission prompt in iOS)
+    });
+
+    OneSignal.shared
+        .setSubscriptionObserver((OSSubscriptionStateChanges changes) {
+      // Will be called whenever the subscription changes
+      // (ie. user gets registered with OneSignal and gets a user ID)
+    });
+
+    OneSignal.shared.setEmailSubscriptionObserver(
+        (OSEmailSubscriptionStateChanges emailChanges) {
+      // Will be called whenever then user's email subscription changes
+      // (ie. OneSignal.setEmail(email) is called and the user gets registered
+    });
+  }
+
+  @override
+  void initState() {
+    oneSignal();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +121,6 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => LoginScreen(),
-        '/message': (context) => MessageScreen(),
         '/register': (context) => RegistrationPage(),
       },
       // home: LoginPage(),

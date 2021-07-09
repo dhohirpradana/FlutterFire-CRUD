@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -88,20 +89,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                 NetworkImage('https://via.placeholder.com/150'),
                             backgroundColor: Colors.transparent,
                           );
-                        } else if (snapshot.data!.docs.length != 0) {
+                        } else {
                           return CircleAvatar(
                             radius: MediaQuery.of(context).size.width / 8,
                             backgroundImage:
                                 NetworkImage(snapshot.data!.docs[0]['image']),
                             backgroundColor: Colors.transparent,
                           );
-                        } else {
-                          return Text('Error');
                         }
                       } else {
-                        return Text(
-                          'Loading...',
-                          style: TextStyle(color: Colors.white),
+                        return Center(
+                          child: CircularProgressIndicator(),
                         );
                       }
                     }),
@@ -133,7 +131,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           .copyWith(color: Colors.green),
                     )
                   : Text(
-                      'Email not verified (Tidak dapat kelola data)',
+                      'Email not verified',
                       style: Theme.of(context)
                           .textTheme
                           .bodyText1!
@@ -160,27 +158,36 @@ class _ProfilePageState extends State<ProfilePage> {
                   ? Row(
                       children: [
                         Expanded(
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.green[700])),
-                            onPressed: () async {
-                              if (!_currentUser.emailVerified) {
-                                await _currentUser.sendEmailVerification();
+                          child: ArgonTimerButton(
+                            initialTimer: 0, // Optional
+                            height: 38,
+                            width: MediaQuery.of(context).size.width * 0.45,
+                            minWidth: MediaQuery.of(context).size.width * 0.30,
+                            color: Colors.green[700],
+                            borderRadius: 4.0,
+                            child: Text(
+                              "Verifikasi email",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            loader: (timeLeft) {
+                              return Text(
+                                "Tunggu | $timeLeft",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              );
+                            },
+                            onTap: (startTimer, btnState) {
+                              if (btnState == ButtonState.Idle) {
+                                startTimer(10);
+                                _currentUser.sendEmailVerification();
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                     content: Text(
                                         'Buka kotak masuk email anda untuk memverifikasi akun.')));
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'Akun anda telah terverifikasi.')));
                               }
                             },
-                            child: Text(
-                              'Verifikasi Email',
-                              style: TextStyle(color: Colors.white),
-                            ),
                           ),
                         ),
                       ],
@@ -200,12 +207,33 @@ class _ProfilePageState extends State<ProfilePage> {
                                 'Buka kotak masuk email untuk reset password.')));
                       },
                       child: Text(
-                        'Reset Password',
+                        'Reset password',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
                 ],
+              ),
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: ElevatedButton(
+              //         style: ButtonStyle(
+              //             backgroundColor:
+              //                 MaterialStateProperty.all(Colors.red)),
+              //         onPressed: () async {
+              //           FireAuth.signinUsingPhoneNumber();
+              //         },
+              //         child: Text(
+              //           'Sign in with Phone Number',
+              //           style: TextStyle(color: Colors.white),
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              SizedBox(
+                height: 10,
               ),
               // and, signing out the user
               Row(
