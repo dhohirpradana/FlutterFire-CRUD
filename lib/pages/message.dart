@@ -69,12 +69,14 @@ class _MessageScreenState extends State<MessageScreen> {
                               backgroundColor:
                                   MaterialStateProperty.all(Colors.blue[700])),
                           onPressed: () {
-                            MessageDatabase.addChat(
-                              uid: widget.user,
-                              receiverId: widget.receiverId,
-                              receiver: widget.receiver,
-                              text: _chatController.text,
-                            ).whenComplete(() => _chatController.clear());
+                            if (_formKey.currentState!.validate()) {
+                              MessageDatabase.addChat(
+                                uid: widget.user,
+                                receiverId: widget.receiverId,
+                                receiver: widget.receiver,
+                                text: _chatController.text,
+                              ).whenComplete(() => _chatController.clear());
+                            }
                           },
                           child: Text('KIRIM')),
                     ),

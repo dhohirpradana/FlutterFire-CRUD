@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mantoo/pages/main_message.dart';
-import 'package:mantoo/pages/message.dart';
+// import 'package:mantoo/pages/message.dart';
 import 'package:mantoo/res/custom_color.dart';
 
 class AppBarTitle extends StatefulWidget {

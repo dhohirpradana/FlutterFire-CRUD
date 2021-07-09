@@ -30,44 +30,45 @@ class _MainMessageListState extends State<MainMessageList> {
               var oneSignalUser = snapshot.data!.docs[index];
               String email = oneSignalUser['email'];
               String oneSignalId = oneSignalUser['id'];
-              return Visibility(
-                visible: (docID == widget.user.uid) ? false : true,
-                child: Ink(
-                  decoration: BoxDecoration(
-                    color: CustomColors.firebaseGrey.withOpacity(0.1),
+              return
+                  // Visibility(
+                  //   visible: (docID == widget.user.uid) ? false : true,
+                  //   child:
+                  Ink(
+                decoration: BoxDecoration(
+                  color: CustomColors.firebaseGrey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: ListTile(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => MessageScreen(
-                          user: user,
-                          receiverId: docID,
-                          receiver: oneSignalId,
-                        ),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => MessageScreen(
+                        user: user,
+                        receiverId: docID,
+                        receiver: oneSignalId,
                       ),
                     ),
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          email,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      ],
-                    ),
+                  ),
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        email,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                    ],
                   ),
                 ),
+                // ),
               );
             },
           );
         }
-
         return Center(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(
