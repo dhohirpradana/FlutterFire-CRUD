@@ -1,6 +1,8 @@
 # mantoo
 
-A new Flutter project.
+creator : DHOHIR PRADANA
+
+A Chat App Flutter x Firebase project.
 
 ## Getting Started
 
