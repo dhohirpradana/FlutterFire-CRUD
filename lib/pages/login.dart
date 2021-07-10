@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:mantoo/pages/dashboard_screen.dart';
+import 'package:mantoo/pages/main_message.dart';
 import 'package:mantoo/widget/login_form_v2.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,8 +18,8 @@ class _LoginPageState extends State<LoginPage> {
     if (user != null) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => DashboardScreen(
-            uid: user,
+          builder: (context) => MainMessage(
+            user: user,
           ),
         ),
       );

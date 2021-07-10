@@ -54,13 +54,26 @@ class Database {
     print(url);
     DocumentReference documentReferencer =
         _mainCollection.doc(uid).collection('profile').doc();
-    await documentReferencer.set({'image': url, 'time': now}).whenComplete(() {
-      print("Gambar berhasil diupload");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Gambar berhasil diupload.')));
-    }).catchError((e) {
-      print(e);
-    });
+    DocumentSnapshot ds = await documentReferencer.get();
+    if (ds.exists) {
+      await documentReferencer
+          .update({'image': url, 'time': now}).whenComplete(() {
+        print("Gambar berhasil diupdate");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Gambar berhasil diupload.')));
+      }).catchError((e) {
+        print(e);
+      });
+    } else {
+      await documentReferencer
+          .set({'image': url, 'time': now}).whenComplete(() {
+        print("Gambar berhasil diupload");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Gambar berhasil diupload.')));
+      }).catchError((e) {
+        print(e);
+      });
+    }
   }
 
   static Stream<QuerySnapshot> readItems({required User uid}) {

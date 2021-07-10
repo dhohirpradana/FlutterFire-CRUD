@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mantoo/helper/fire_auth.dart';
 import 'package:mantoo/helper/validator.dart';
-import 'package:mantoo/pages/dashboard_screen.dart';
+import 'package:mantoo/pages/main_message.dart';
 import 'package:mantoo/pages/registration.dart';
 import 'package:mantoo/res/custom_color.dart';
 
@@ -79,8 +79,8 @@ class WidgetFormLogin extends StatelessWidget {
                       if (user != null) {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                              builder: (context) => DashboardScreen(
-                                    uid: user,
+                              builder: (context) => MainMessage(
+                                    user: user,
                                   )),
                         );
                       }

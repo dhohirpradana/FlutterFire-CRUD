@@ -81,11 +81,6 @@ class _MyAppState extends State<MyApp> {
       notification.complete(notification.notification);
     });
 
-    OneSignal.shared
-        .setNotificationOpenedHandler((OSNotificationOpenedResult result) {
-      // Will be called whenever a notification is opened/button pressed.
-    });
-
     OneSignal.shared.setPermissionObserver((OSPermissionStateChanges changes) {
       // Will be called whenever the permission changes
       // (ie. user taps Allow on the permission prompt in iOS)

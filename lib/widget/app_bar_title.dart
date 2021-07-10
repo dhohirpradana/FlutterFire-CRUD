@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mantoo/pages/main_message.dart';
-// import 'package:mantoo/pages/message.dart';
+import 'package:mantoo/pages/profile.dart';
 import 'package:mantoo/res/custom_color.dart';
 
 class AppBarTitle extends StatefulWidget {
@@ -42,24 +41,43 @@ class _AppBarTitleState extends State<AppBarTitle> {
             ),
           ],
         ),
-        IconButton(
-          icon: Icon(
-            Icons.message,
-            color: CustomColors.firebaseOrange,
-          ),
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                  builder: (context) => MainMessage(
-                        user: user!,
-                      )
-                  // ProfilePage(
-                  //   user: user!,
-                  // ),
+        Row(
+          children: [
+            // IconButton(
+            //   icon: Icon(
+            //     Icons.message,
+            //     color: CustomColors.firebaseOrange,
+            //   ),
+            //   onPressed: () {
+            //     Navigator.of(context).push(
+            //       MaterialPageRoute(
+            //           builder: (context) => MainMessage(
+            //                 user: user!,
+            //               )
+            //           // ProfilePage(
+            //           //   user: user!,
+            //           // ),
+            //           ),
+            //     );
+            //   },
+            // ),
+            IconButton(
+              icon: Icon(
+                Icons.person,
+                color: CustomColors.firebaseOrange,
+              ),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(
+                      user: user!,
+                    ),
                   ),
-            );
-          },
-        )
+                );
+              },
+            )
+          ],
+        ),
       ],
     );
   }

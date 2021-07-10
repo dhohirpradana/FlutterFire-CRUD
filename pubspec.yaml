@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   argon_buttons_flutter: ^1.1.0
+  bubble: ^1.2.1
   cloud_firestore: ^2.3.0
   connectivity: ^3.0.6
   cupertino_icons: ^1.0.2

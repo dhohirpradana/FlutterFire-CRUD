@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mantoo/pages/main_message.dart';
 import 'package:mantoo/res/custom_color.dart';
 import 'package:mantoo/widget/login_form_v2.dart';
-import 'dashboard_screen.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -13,12 +14,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   Future<FirebaseApp> _initializeFirebase() async {
     FirebaseApp firebaseApp = await Firebase.initializeApp();
-    final user = FirebaseAuth.instance.currentUser;
+    final User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
+      OneSignal.shared.setExternalUserId(user.uid);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => DashboardScreen(
-            uid: user,
+          builder: (context) => MainMessage(
+            user: user,
           ),
         ),
       );

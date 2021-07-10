@@ -1,32 +1,41 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
 // import 'package:mantoo/helper/connectivity.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 final FirebaseAuth auth = FirebaseAuth.instance;
 final User user = auth.currentUser!;
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-final CollectionReference _mainCollection = _firestore.collection('onesignal');
+final CollectionReference _mainCollection = _firestore.collection('users');
 
 DateTime now = DateTime.now();
-sendNotification({required nama, required message, required receiver}) async {
+sendNotification(
+    {required uid,
+    required uName,
+    required urId,
+    required urName,
+    required message,
+    required externalId}) async {
   // var status = await OneSignal.shared.getDeviceState();
   // var playerId = status!.userId;
-  final name = nama.toString().toUpperCase();
+  final name = uName.toString().toUpperCase();
 
   await OneSignal.shared.postNotification(OSCreateNotification(
-    playerIds: [receiver!],
-    bigPicture: 'https://picsum.photos/200',
-    content: message,
-    heading: "FireMessage dari $name",
-    // buttons: [
-    //   OSActionButton(text: "OK", id: "ok"),
-    //   // OSActionButton(text: "test2", id: "id2")
-    // ]
-  ));
+      playerIds: [externalId],
+      // bigPicture: 'https://picsum.photos/200',
+      additionalData: {
+        'uid': uid,
+        'uName': uName,
+        'urId': urId,
+        'urName': urName,
+        'externalId': externalId
+      },
+      content: message,
+      heading: "FireMessage dari $name",
+      buttons: [
+        OSActionButton(text: "lihat", id: "lihat"),
+        // OSActionButton(text: "test2", id: "id2")
+      ]));
 }
 
 class MessageDatabase {
@@ -37,9 +46,11 @@ class MessageDatabase {
   }
 
   static Future<void> addChat({
-    required User uid,
-    required String receiver,
+    required String uid,
+    required String uName,
     required String receiverId,
+    required String urName,
+    required String externalId,
     required String text,
   }) async {
     DocumentReference documentReferencer =
@@ -47,7 +58,7 @@ class MessageDatabase {
     int time = DateTime.now().millisecondsSinceEpoch;
 
     Map<String, dynamic> data = <String, dynamic>{
-      "sender": uid.uid,
+      "sender": uid,
       "receiver": receiverId,
       "text": text,
       "time": time,
@@ -56,37 +67,19 @@ class MessageDatabase {
     await documentReferencer.set(data).whenComplete(() {
       print("Chat berhasil dikirim");
       sendNotification(
-          nama: uid.displayName, receiver: receiver, message: text);
+          uid: uid,
+          uName: uName,
+          urId: receiverId,
+          urName: urName,
+          externalId: externalId,
+          message: text);
     }).catchError((e) {
       print(e);
     });
   }
 
-  static Future uploadImageToFirebase(
-      BuildContext context, File _imageFile, String uid) async {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    // String fileName = _imageFile.path;
-    final firebaseStorageRef =
-        FirebaseStorage.instance.ref().child('uploads/$uid-profile.jpg');
-    await firebaseStorageRef.putFile(_imageFile);
-    var url = await firebaseStorageRef.getDownloadURL();
-    print(url);
-    DocumentReference documentReferencer =
-        _mainCollection.doc(uid).collection('profile').doc();
-    await documentReferencer.set({'image': url, 'time': now}).whenComplete(() {
-      print("Gambar berhasil diupload");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Gambar berhasil diupload.')));
-    }).catchError((e) {
-      print(e);
-    });
-  }
-
-  static Stream<QuerySnapshot> readItems({required User uid}) {
-    Query itemCollection = _mainCollection
-        .doc(uid.uid)
-        .collection('barangs')
-        .orderBy('title', descending: false);
+  static Stream<QuerySnapshot> readMessage() {
+    Query itemCollection = _firestore.collection('chatting').orderBy('time');
     return itemCollection.snapshots();
   }
 
